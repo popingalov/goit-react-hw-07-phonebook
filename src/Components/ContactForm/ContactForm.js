@@ -1,10 +1,12 @@
 import PropTypes from 'prop-types';
 import { useState } from 'react';
+import { useAddContactMutation } from '../../redux/contacts/contactsApi';
 import styles from './ContactForm.module.css';
-
-function ContactForm({ addContact }) {
+import Spiner from 'Components/Spiner/Spiner';
+function ContactForm({ contacts }) {
   const [name, setName] = useState('');
   const [number, setNumber] = useState('');
+  const [createContact, isFetching] = useAddContactMutation();
 
   const handleChange = e => {
     const { name, value } = e.target;
@@ -18,14 +20,20 @@ function ContactForm({ addContact }) {
 
   const handleSubmit = e => {
     e.preventDefault();
+    if (contacts.length === 100) {
+      alert('The maximum limit of 100 contacts has been reached.');
+      return;
+    }
 
-    addContact(name, number);
-
+    contacts.find(contact => name === contact.name)
+      ? alert(`Name: ${name} reserved`)
+      : createContact({ name, number });
     resetState();
   };
 
   return (
     <form onSubmit={handleSubmit}>
+      {isFetching.isLoading && <Spiner />}
       <label>
         Name
         <br />

@@ -1,38 +1,29 @@
 import './App.css';
+import { useState } from 'react';
 import ContactForm from './Components/ContactForm/ContactForm';
 import ContactList from './Components/ContactList/ContactList';
-import { getVisibleContacts, getFilter } from './redux/selectors';
 import Filter from './Components/Filter/Filter';
-import contactsActions from 'redux/contacts/contacts-Actions';
-import filterActions from './redux/filter/filter-Actions';
-import { useSelector, useDispatch } from 'react-redux';
+import Spiner from 'Components/Spiner/Spiner';
+import { useFetchContactsQuery } from './redux/contacts/contactsApi';
 
 function App() {
-  const contacts = useSelector(getVisibleContacts);
-  const filter = useSelector(getFilter);
-  const dispatch = useDispatch();
+  const [filter, setFilter] = useState('');
+  const { data: contacts, isFetching } = useFetchContactsQuery();
 
-  const handleChangeFilter = e => {
-    dispatch(filterActions(e));
-  };
-
-  const deleteContact = contactId => {
-    dispatch(contactsActions.deleteContact(contactId));
-  };
-  const addContact = (name, number) => {
-    contacts.find(contact => name === contact.name)
-      ? alert(name + ' is already in contacts')
-      : dispatch(contactsActions.addContact({ name, number }));
-  };
+  const takeVisiblContacts = contactsArray =>
+    contactsArray.filter(contact =>
+      contact.name.toLowerCase().includes(filter.toLowerCase()),
+    );
   return (
     <div>
+      {isFetching && <Spiner />}
       <h1>Phonebook</h1>
-      <ContactForm addContact={addContact} />
+      <ContactForm contacts={contacts} />
       <h2>Contacts</h2>
 
-      <Filter handleChangeFilter={handleChangeFilter} filter={filter} />
+      <Filter handleChangeFilter={setFilter} />
 
-      <ContactList contacts={contacts} deleteContact={deleteContact} />
+      <ContactList contacts={takeVisiblContacts(contacts ?? [])} />
     </div>
   );
 }

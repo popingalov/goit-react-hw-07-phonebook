@@ -1,14 +1,13 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-let Filter = ({ handleChangeFilter, filter }) => {
+let Filter = ({ handleChangeFilter }) => {
   return (
     <section>
       <label>
         Find contacts by name
         <input
           onChange={e => handleChangeFilter(e.target.value)}
-          value={filter}
           name="filter"
           type="text"
         />
